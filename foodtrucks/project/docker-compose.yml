@@ -1,0 +1,36 @@
+services:
+  app:
+    build: .
+    networks:
+      - truck-networks
+    ports:
+      - 5000:5000
+    depends_on:
+      db:
+        condition: service_healthy
+  
+  db:
+    image: elasticsearch:7.17.13
+    networks:
+      - truck-networks
+    environment:
+      - discovery.type=single-node
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    healthcheck:
+      test: curl -s http://elasticsearch01:9300 >/dev/null || exit 1
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    volumes:
+      - esdata1:/usr/share/elasticsearch/data
+     
+volumes:
+  esdata1:
+    driver: local
+
+networks:
+  truck-networks:
+    driver: bridge
