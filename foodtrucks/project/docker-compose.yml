@@ -1,19 +1,8 @@
 services:
-  backend:
-    build: .
-    restart: always
-    networks:
-      - truck-networks
-    ports:
-      - 5000:5000
-    depends_on:
-      es:
-        condition: service_healthy
-  
   es:
     image: elasticsearch:7.17.13
     networks:
-      - truck-networks
+      - backend-networks
     environment:
       - discovery.type=single-node
     healthcheck:
@@ -23,9 +12,36 @@ services:
       retries: 5
     volumes:
       - trucks_db:/usr/share/elasticsearch/data
+  
+  backend:
+    build: .
+    restart: always
+    networks:
+      - backend-networks
+      - frontend-networks
+    depends_on:
+      es:
+        condition: service_healthy
+  
+  nginx:
+    image: nginx:1.27.0-perl
+    ports:
+     - "80:80"
+
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+      - ./flask-app/static:/usr/share/nginx/html/static
+      - ./flask-app/templates:/usr/share/nginx/html
+    depends_on:
+      - backend
+    networks:
+      - frontend-networks
+
+
      
 volumes:
   trucks_db:
 
 networks:
-  truck-networks:
+  frontend-networks:
+  backend-networks:
