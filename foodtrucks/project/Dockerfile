@@ -15,10 +15,6 @@ FROM python:2-alpine3.11
 
 WORKDIR /app/flask-app
 
-COPY --from=builder /app/flask-app/static static
-
-COPY --from=builder /app/flask-app/templates templates
-
 COPY --from=builder /app/flask-app/requirements.txt .
 
 COPY --from=builder /app/flask-app/app.py .
