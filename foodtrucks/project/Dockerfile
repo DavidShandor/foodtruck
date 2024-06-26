@@ -1,15 +1,10 @@
-FROM python:2
+FROM python:2-alpine3.11
 
 WORKDIR /app
 
 COPY . .
 
-RUN apt-get update && \
-    apt-get install -y curl gnupg && \
-    curl -sL https://deb.nodesource.com/setup_14.x | bash - && \
-    apt-get install -y nodejs && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+RUN apk add --update npm
 
 WORKDIR /app/flask-app
 
